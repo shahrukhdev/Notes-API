@@ -65,33 +65,37 @@ export const uploadAttachment = async (req: Request, res: Response) => {
    }
 };
 
-export const downlodAttachment = async (req: Request, res: Response) => { 
-    try {
-        const userId = req.user!.id; 
-        const id = getParam(req, 'id');
+export const downlodAttachment = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user!.id;
+    const id = getParam(req, "id");
 
-        const attachment = await attachmentService.downlodAttachment(userId, id);
+    const attachment = await attachmentService.downlodAttachment(userId, id);
 
-        const filePath = path.join(process.cwd(), "uploads", path.basename(attachment.fileUrl));
+    const filePath = path.join(
+      process.cwd(),
+      "uploads",
+      attachment.storedFileName
+    );
 
-        if (!fs.existsSync(filePath)) {
-            throw new AppError("File not found on server", 404);
-        }
-
-        return res.download(filePath, attachment.fileName);
-    } catch (error) {
-        if (error instanceof AppError) {
-            return res.status(error.statusCode).json({
-                success: false,
-                message: error.message,
-            });
-        }
-
-        return res.status(500).json({
-            success: false,
-            message: 'Something went wrong. Please try again!',
-        });
+    if (!fs.existsSync(filePath)) {
+      throw new AppError("File not found on server", 404);
     }
+
+    return res.download(filePath, attachment.fileName);
+  } catch (error) {
+    if (error instanceof AppError) {
+      return res.status(error.statusCode).json({
+        success: false,
+        message: error.message,
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong. Please try again!",
+    });
+  }
 };
 
 export const deleteAttachment = async (req: Request, res: Response) => {

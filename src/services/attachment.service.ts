@@ -18,7 +18,8 @@ const uploadAttachment = async (userId: string, noteId: string, files: Express.M
       fileUrl: `/uploads/${file.filename}`,
       fileExtension: path.extname(file.originalname).replace(".", ""),
       fileType: file.mimetype,
-      size: file.size
+      size: file.size,
+      storedFileName: file.filename,
     }));
 
     return await Attachment.insertMany(attachments);
@@ -45,17 +46,21 @@ const deleteAttachment = async (userId: string, noteId: string, attachmentId: st
   });
 
   if (!attachment) {
-    throw new AppError('Attachment not found.', 404);
+    throw new AppError("Attachment not found.", 404);
   }
 
   const filePath = path.join(
     process.cwd(),
     "uploads",
-    path.basename(attachment.fileUrl)
+    attachment.storedFileName
   );
 
-  if (fs.existsSync(filePath)) {
-    fs.unlinkSync(filePath);
+  try {
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch (err) {
+    console.error("File delete error:", err);
   }
 
   await attachment.deleteOne();

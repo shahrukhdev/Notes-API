@@ -8,7 +8,8 @@ export interface AttachmentInterface extends Document {
     fileUrl: string,
     fileExtension?: string,
     fileType?: string,
-    size: number
+    size: number,
+    storedFileName: string
 }
 
 const attachmentSchema: Schema = new Schema(
@@ -44,7 +45,11 @@ const attachmentSchema: Schema = new Schema(
         size: {
             type: Number,
             required: false
-        }
+        },
+        storedFileName: {
+            type: String,
+            required: false
+        },
     },
     { timestamps: true }
 );
